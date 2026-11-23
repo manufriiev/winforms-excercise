@@ -95,6 +95,10 @@ namespace WinFormsApp3
                         AddSaveButton();
                         dataGridView1.Columns["id"].Visible = checkedListBox2.GetItemChecked(0);
                     }
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
+                    {
+                        row.Cells["savebutton"].Value = "Save";
+                    }
                 }
             }
         }
@@ -140,7 +144,7 @@ namespace WinFormsApp3
                 Name = "savebutton",
                 HeaderText = "Save",
                 Text = "Save",
-                UseColumnTextForButtonValue = true
+                UseColumnTextForButtonValue = false
             };
 
             dataGridView1.Columns.Add(save);
@@ -167,13 +171,17 @@ namespace WinFormsApp3
                 e.RowIndex >= 0)
             {
                 DataGridViewRow row = senderGrid.Rows[e.RowIndex];
-
                 var values = row.Cells.Cast<DataGridViewCell>()
-                    .ToDictionary(c => c.OwningColumn.Name, c => c.Value);
+                .ToDictionary(c => c.OwningColumn.Name, c => c.Value);
 
                 string viewAtClick = view.cur;
 
                 senderGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Salmon;
+                var buttonCell = senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                buttonCell.Value = "Saving...";
+                buttonCell.ReadOnly = true;
+                senderGrid.InvalidateCell(buttonCell);
 
                 Task task = new Task(() =>
                 {
@@ -187,6 +195,8 @@ namespace WinFormsApp3
                 senderGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
                 timer1.Interval = 2000;
                 timer1.Enabled = true;
+                buttonCell.Value = "Save";
+                buttonCell.ReadOnly = false;
                 confirmedRows.Enqueue(e.RowIndex);
             }
         }
